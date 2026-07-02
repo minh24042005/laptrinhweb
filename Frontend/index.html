@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Sinh viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+
+    <main id="loginSection" class="login-page">
+        <section class="login-card">
+            <div class="brand-mark">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h1>Đăng nhập quản trị</h1>
+            <p>Hệ thống Quản lý Sinh viên</p>
+
+            <form id="loginForm" class="mt-4">
+                <div class="mb-3">
+                    <label class="form-label" for="username">Tên đăng nhập</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="username" class="form-control" required autocomplete="username" placeholder="admin">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="password" class="form-control" required autocomplete="current-password" placeholder="Nhập mật khẩu">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="apiBaseUrl">Địa chỉ API backend</label>
+                    <input type="url" id="apiBaseUrl" class="form-control" placeholder="http://localhost/Project_1/Backend/api">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold" id="btnLogin">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập
+                </button>
+                <button type="button" class="btn btn-link w-100 mt-2" id="btnOpenRegister">
+                    Tạo tài khoản quản trị
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <main id="mainSection" class="main-content">
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fa-solid fa-graduation-cap me-2"></i>EduManager
+                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="admin-badge">
+                        <i class="fa-solid fa-circle-user me-1"></i>
+                        <span id="adminName">Admin</span>
+                    </span>
+                    <button class="btn btn-outline-light btn-sm" id="btnLogout" type="button">
+                        <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Đăng xuất
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <section class="container-fluid py-4">
+            <div class="page-heading">
+                <div>
+                    <p class="section-label">Chủ đề 1</p>
+                    <h2>Quản lý sinh viên</h2>
+                </div>
+                <button class="btn btn-success fw-semibold" id="btnOpenAdd" type="button">
+                    <i class="fa-solid fa-plus me-1"></i> Thêm sinh viên
+                </button>
+            </div>
+
+            <div class="stats-grid mb-4">
+                <article class="stat-card">
+                    <span>Tổng sinh viên</span>
+                    <strong id="statTotal">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Nam</span>
+                    <strong id="statMale">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Nữ</span>
+                    <strong id="statFemale">0</strong>
+                </article>
+                <article class="stat-card">
+                    <span>Số lớp</span>
+                    <strong id="statClass">0</strong>
+                </article>
+            </div>
+
+            <div class="toolbar">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="search" id="txtSearch" class="form-control" placeholder="Tìm theo mã sinh viên hoặc tên">
+                    <button class="btn btn-outline-secondary" id="btnResetSearch" type="button">
+                        <i class="fa-solid fa-xmark me-1"></i> Xóa lọc
+                    </button>
+                </div>
+                <button class="btn btn-outline-primary" id="btnReload" type="button">
+                    <i class="fa-solid fa-rotate-right me-1"></i> Tải lại
+                </button>
+            </div>
+
+            <div class="table-panel">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mã SV</th>
+                                <th>Họ và tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Giới tính</th>
+                                <th>Lớp</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm sinh viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <form id="studentForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="formAction" value="add">
+                        <input type="hidden" id="originalMaSV">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="maSV">Mã sinh viên</label>
+                            <input type="text" id="maSV" class="form-control" required maxlength="30" placeholder="Ví dụ: B21DCCN001">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="tenSV">Họ và tên</label>
+                            <input type="text" id="tenSV" class="form-control" required maxlength="120" placeholder="Ví dụ: Nguyễn Văn A">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="ngaySinh">Ngày sinh</label>
+                            <input type="date" id="ngaySinh" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-block">Giới tính</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gioiTinh" id="gtNam" value="Nam" checked>
+                                <label class="form-check-label" for="gtNam">Nam</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gioiTinh" id="gtNu" value="Nữ">
+                                <label class="form-check-label" for="gtNu">Nữ</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="lop">Lớp</label>
+                            <input type="text" id="lop" class="form-control" required maxlength="50" placeholder="Ví dụ: DI21V7A1">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary fw-semibold" id="btnSave">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Tạo tài khoản quản trị</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <form id="registerForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="registerUsername">Tên đăng nhập</label>
+                            <input type="text" id="registerUsername" class="form-control" required autocomplete="username">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="registerPassword">Mật khẩu</label>
+                            <input type="password" id="registerPassword" class="form-control" required minlength="4" autocomplete="new-password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="registerConfirm">Nhập lại mật khẩu</label>
+                            <input type="password" id="registerConfirm" class="form-control" required minlength="4" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary fw-semibold" id="btnRegister">
+                            <i class="fa-solid fa-user-plus me-1"></i> Đăng ký
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/student.js"></script>
+</body>
+</html>
